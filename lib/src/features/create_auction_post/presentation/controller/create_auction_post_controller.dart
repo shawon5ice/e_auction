@@ -1,58 +1,81 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_auction/src/core/di/app_component.dart';
+import 'package:e_auction/src/features/create_auction_post/data/models/auction_model.dart';
+import 'package:e_auction/src/features/create_auction_post/domain/repository/create_auction_repository.dart';
+import 'package:e_auction/src/features/create_auction_post/domain/usecase/upload_auction_product.dart';
+import 'package:e_auction/src/features/create_auction_post/domain/usecase/upload_product_image_usecase.dart';
+import 'package:e_auction/src/features/create_auction_post/presentation/ui/widgets/auction_post_success_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../ui/widgets/permission_warning_widget.dart';
+import 'package:logger/logger.dart';
+
+Logger logger = Logger();
 
 class CreateAuctionPostController extends GetxController {
   var loading = false.obs;
   var title = "".obs;
   var description = "".obs;
   var bidPrice = 0.0.obs;
-  var deadline = "".obs;
-  var auctionEndDateTime = DateTime.now();
+  var auctionEndDateTime = DateTime.now().obs;
   var imageFilePath = "".obs;
+  var isDatePicked = false.obs;
 
 
-
-
-  Future<void> uploadImage() async {
-    final fileName = 'shawon5ice${DateTime.now().toIso8601String()}';
-    final reference = firebase_storage.FirebaseStorage.instance.ref().child(fileName);
-    final uploadTask = reference.putFile(File(imageFilePath.value));
-    await uploadTask.whenComplete(() async{
-      final downloadURL = await reference.getDownloadURL();
-      updateProductDocument(downloadURL);
-    });
-    // updateProductDocument(downloadURL);
+  Future<void> selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null) {
+      final TimeOfDay? time = await showTimePicker(
+        context: context, initialTime: TimeOfDay.now(),);
+      if (time != null) {
+        auctionEndDateTime.value = DateTime(
+          picked.year, picked.month, picked.day, time.hour, time.minute,);
+      }
+    }
   }
 
-  Future<void> updateProductDocument(String downloadURL) async {
-    final productRef = FirebaseFirestore.instance.collection('auction_gallery');
-    productRef.add(
-      {
-        'title': title.value,
-        'description':description.value,
-        'bid_rate':bidPrice.value,
-        'deadline':DateTime.now().toIso8601String(),
-        'author':FirebaseAuth.instance.currentUser?.email,
-        'bidder': [
-
-        ],
-        'product_url': downloadURL,
+  void postNewAuction() async {
+    String uploadUrl = "";
+    if (imageFilePath.value.isNotEmpty) {
+      UploadProductImageUseCase uploadProductImageUseCase = UploadProductImageUseCase(locator<CreateAuctionRepository>());
+      uploadUrl = await uploadProductImageUseCase(filePath: imageFilePath.value);
+      if(uploadUrl.isEmpty){
+        const GetSnackBar(
+          title: 'Failure',
+          message: 'Failed to upload Image',
+        );
       }
-    );
-    loading.value = false;
+    }
+
+    ProductModel product = ProductModel(
+        title: title.value.trim(),
+        description: description.value.trim(),
+        author: FirebaseAuth.instance.currentUser!.email!,
+        bidder: <Bidder>[],
+        productUrl: uploadUrl,
+        deadline: auctionEndDateTime.value.toIso8601String(),
+        minBidAmount: bidPrice.value);
+
+    UploadAuctionProductUseCase uploadAuctionProductUseCase = UploadAuctionProductUseCase(locator<CreateAuctionRepository>());
+    var response = await uploadAuctionProductUseCase(product: product);
+
+    if(response == true){
+      const SuccessDialog();
+    }
   }
 
   void getImage(ImageSource source) async {
     final picker = ImagePicker();
     PermissionStatus cameraPermissionStatus = await Permission.camera.request();
-    PermissionStatus galleryPermissionStatus = await Permission.storage.request();
+    PermissionStatus galleryPermissionStatus = await Permission.storage
+        .request();
 
     if (cameraPermissionStatus.isGranted || galleryPermissionStatus.isGranted) {
       final pickedFile = await picker.pickImage(source: source);
@@ -64,40 +87,15 @@ class CreateAuctionPostController extends GetxController {
     }
   }
 
-  void submitData() {
-    loading.value = true;
-    if(imageFilePath.value.isEmpty){
-      updateProductDocument('');
-    }else{
-      uploadImage();
-    }
-  }
-}
-
-class PermissionWarning extends StatelessWidget {
-  const PermissionWarning({Key? key}) : super(key: key);
-
-  @override
-  build(BuildContext context) async {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text("Permission Request"),
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: const <Widget>[
-              Text(
-                  "Camera and storage permission are required to use this feature.")
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text("OK"),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
+  void resetData() {
+    loading = false.obs;
+    title = "".obs;
+    description = "".obs;
+    bidPrice = 0.0.obs;
+    auctionEndDateTime = DateTime
+        .now()
+        .obs;
+    imageFilePath = "".obs;
+    isDatePicked = false.obs;
   }
 }

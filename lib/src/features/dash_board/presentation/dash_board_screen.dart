@@ -65,13 +65,6 @@ class DashBoardScreen extends StatelessWidget {
       type: BottomNavigationBarType.fixed,
       currentIndex: _controller.selectedPageIndex.value,
       onTap: (val) {
-        ///
-        /// This check is to reduce unnecessary memory usages
-        ///
-        if(val != 1 && !Get.find<CreateAuctionPostController>().isClosed){
-          Get.delete<CreateAuctionPostController>();
-          Get.lazyPut(() => CreateAuctionPostController());
-        }
         _controller.selectedPageIndex.value = val;
       },
       items: [
