@@ -1,48 +1,54 @@
 import 'package:e_auction/src/core/extensions/extensions.dart';
+import 'package:e_auction/src/features/authentication/data/source/authentication_service.dart';
+import 'package:e_auction/src/features/authentication/presentation/controller/authentication_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import '../../../../core/utils/assetsPath.dart';
-import '../controller/forgot_password_controller.dart';
 
 class AuthenticationScreen extends StatelessWidget {
-  const AuthenticationScreen({super.key});
+  AuthenticationScreen({super.key});
 
-  // final _forgotPasswordController = Get.put(ForgotPasswordController());
+  final _authenticationController = Get.find<AuthenticationController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Stack(
-            children: <Widget>[
-              _mainBody(context),
-              // if (_forgotPasswordController.showLoaderScreen.value)
-              //   const CircularProgressIndicator()
-            ],
-          ),
+        child: Obx(() => Stack(
+          children: <Widget>[
+            _mainBody(context),
+            if (_authenticationController.showLoading.value)
+              const Center(child: CircularProgressIndicator())
+          ],
         ),
+        ),
+      ),
     );
   }
 
   Widget _mainBody(BuildContext context) {
-    return Column(children: <Widget>[
-      30.ph,
-      Center(
-        child: SvgPicture.asset(
-          AssetsPath.authScreenSvg,
-          width: 300,
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+            child: Hero(
+              tag: 'imageHero',
+              child:  SvgPicture.asset(AssetsPath.authScreenSvg,width: 100,),
+            ),
+          ),
         ),
-      ),
-      const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-        child: Text(
-          "Winning starts here",
-          style: TextStyle(
-              fontSize: 16, color: Colors.black, fontWeight: FontWeight.w400),
-          textAlign: TextAlign.center,
-        ),
-      )
-    ]);
+        Expanded(
+            child: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              _authenticationController.signInWithGoogle(context);
+            },
+            child: const Text('Continue With goolge'),
+          ),
+        ))
+      ],
+    );
   }
 }

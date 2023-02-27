@@ -1,11 +1,15 @@
-import 'package:e_auction/src/features/authentication/presentation/ui/authentication_screen.dart';
+import 'package:e_auction/src/core/di/app_component.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'firebase_options.dart';
+import 'src/core/routes/router.dart';
+import 'src/core/utils/colorResources.dart';
+import 'src/features/splash_screen/presentation/splash_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  await init();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -18,11 +22,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'E-Auction',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: ColorResources.deepBlueSwatch,
       ),
-      home: AuthenticationScreen(),
+      // home: const SplashScreen(),
+      onGenerateRoute: RouteGenerator.onRouteGenerate,
     );
   }
 }
