@@ -11,9 +11,9 @@ class DashBoardController extends GetxController {
   var selectedPageIndex = 0.obs;
 
   final List<Widget> children = [
-    const AuctionGalleryScreen(),
+    AuctionGalleryScreen(),
     CreateAuctionScreen(),
-    const ProfileScreen(),
+    ProfileScreen(),
   ];
 
   final List<String> pageNames = [

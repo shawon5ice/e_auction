@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_auction/src/core/di/app_component.dart';
 import 'package:e_auction/src/features/create_auction_post/data/models/auction_model.dart';
 import 'package:e_auction/src/features/create_auction_post/domain/repository/create_auction_repository.dart';
@@ -5,6 +6,7 @@ import 'package:e_auction/src/features/create_auction_post/domain/usecase/upload
 import 'package:e_auction/src/features/create_auction_post/domain/usecase/upload_product_image_usecase.dart';
 import 'package:e_auction/src/features/create_auction_post/presentation/ui/widgets/auction_post_success_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -35,13 +37,13 @@ class CreateAuctionPostController extends GetxController {
       final TimeOfDay? time = await showTimePicker(
         context: context, initialTime: TimeOfDay.now(),);
       if (time != null) {
-        auctionEndDateTime.value = DateTime(
-          picked.year, picked.month, picked.day, time.hour, time.minute,);
+        auctionEndDateTime.value = DateTime(picked.year, picked.month, picked.day, time.hour, time.minute,);
       }
     }
   }
 
   void postNewAuction() async {
+    loading.value = true;
     String uploadUrl = "";
     if (imageFilePath.value.isNotEmpty) {
       UploadProductImageUseCase uploadProductImageUseCase = UploadProductImageUseCase(locator<CreateAuctionRepository>());
@@ -56,17 +58,22 @@ class CreateAuctionPostController extends GetxController {
 
     ProductModel product = ProductModel(
         title: title.value.trim(),
+        winner: '',
+        authorUID: FirebaseAuth.instance.currentUser!.uid,
         description: description.value.trim(),
-        author: FirebaseAuth.instance.currentUser!.email!,
+        authorFullName: FirebaseAuth.instance.currentUser!.displayName!,
         bidder: <Bidder>[],
-        productUrl: uploadUrl,
-        deadline: auctionEndDateTime.value.toIso8601String(),
+        productImgUrl: uploadUrl,
+        createdOn: Timestamp.fromDate(DateTime.now()),
+        deadline: Timestamp.fromDate(auctionEndDateTime.value),
         minBidAmount: bidPrice.value);
 
     UploadAuctionProductUseCase uploadAuctionProductUseCase = UploadAuctionProductUseCase(locator<CreateAuctionRepository>());
     var response = await uploadAuctionProductUseCase(product: product);
 
     if(response == true){
+      loading.value = false;
+      resetData();
       const SuccessDialog();
     }
   }
