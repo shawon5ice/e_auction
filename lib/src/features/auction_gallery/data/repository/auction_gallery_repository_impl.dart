@@ -10,8 +10,13 @@ class AuctionGalleryRepositoryImpl implements AuctionGalleryRepository {
   AuctionGalleryService get auctionGalleryService => AuctionGalleryService();
 
   @override
-  Future<QuerySnapshot<Map<String, dynamic>>> fetchAuctionGalleryData() async{
-    return await auctionGalleryService.fetchAuctionGalleryData();
+  Future<bool> addNewBidAuctionGallery({required Bidder bidderProfile, required String docId}) async {
+    return await auctionGalleryService.addNewBidAuctionGallery(bidderProfile: bidderProfile, docId: docId);
+  }
+
+  @override
+  Future<bool> updateBidAuctionGallery({required Bidder updatedValue, required String docId,required int index})async {
+    return await auctionGalleryService.updateBidAuctionGallery(updatedValue: updatedValue, docId: docId,index: index);
   }
 
   // @override

@@ -7,6 +7,7 @@ import 'package:e_auction/src/features/auction_gallery/presentation/controller/a
 import 'package:e_auction/src/features/create_auction_post/presentation/controller/create_auction_post_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../data/models/auction_model.dart';
@@ -14,18 +15,23 @@ import '../widgets/count_down_timer_widget.dart';
 
 class AuctionGalleryItemDetailsScreen extends StatelessWidget {
   final AuctionGalleryModel auctionGalleryModel;
+  final String docId;
 
   AuctionGalleryItemDetailsScreen(
-      {Key? key, required this.auctionGalleryModel})
+      {Key? key, required this.auctionGalleryModel, required this.docId})
       : super(key: key);
 
-  final AuctionGalleryController auctionGalleryController = Get.find<AuctionGalleryController>();
+  final AuctionGalleryController auctionGalleryController =
+      Get.find<AuctionGalleryController>();
+
   @override
   Widget build(BuildContext context) {
     int remainingTime = auctionGalleryModel.deadline
         .toDate()
         .difference(DateTime.now())
         .inSeconds;
+    auctionGalleryController.docId = docId;
+    auctionGalleryController.bidStatus(auctionGalleryModel.bidder);
     if (remainingTime < 0) {
       remainingTime = 0;
     }
@@ -45,7 +51,7 @@ class AuctionGalleryItemDetailsScreen extends StatelessWidget {
                     height: 250,
                     width: double.infinity,
                     placeholder: (context, url) =>
-                        const CircularProgressIndicator(),
+                        SpinKitDancingSquare(color: Colors.deepPurple.shade900),
                     errorWidget: (context, url, error) => const Icon(
                       Icons.broken_image_outlined,
                       size: 250,
@@ -174,34 +180,61 @@ class AuctionGalleryItemDetailsScreen extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: auctionGalleryModel.authorUID == FirebaseAuth.instance.currentUser?.uid ?FloatingActionButton(
-        onPressed: () {
-          logger.e(FirebaseAuth.instance.currentUser?.uid);
-          logger.e(auctionGalleryModel.authorUID);
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Bid to win the auction'),
-              content: TextField(
-                decoration: EAuctionDecorations.eAuctionInputDecoration(
-                    hint: 'Enter bid amount', label: 'Bid amount'),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    RouteGenerator.pop(context);
-                  },
-                  style:
-                      TextButton.styleFrom(foregroundColor: ColorResources.ash),
-                  child: const Text('Cancel'),
-                ),
-                TextButton(onPressed: () {}, child: const Text('Submit')),
-              ],
-            ),
-          );
-        },
-        child: Obx(() => auctionGalleryController.neverBid.value?Icon(Icons.add):Icon(Icons.edit)),
-      ):Container(),
+      floatingActionButton: auctionGalleryModel.authorUID !=
+              FirebaseAuth.instance.currentUser?.uid
+          ? FloatingActionButton(
+              onPressed: () {
+                logger.e(FirebaseAuth.instance.currentUser?.uid);
+                logger.e(auctionGalleryModel.authorUID);
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Bid to win the auction'),
+                    content: TextField(
+                      onChanged: (val) {
+                        auctionGalleryController.bidAmount =
+                            int.parse(val);
+                      },
+                      decoration: EAuctionDecorations.eAuctionInputDecoration(
+                          hint: 'Enter bid amount', label: 'Bid amount'),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          RouteGenerator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                            foregroundColor: ColorResources.ash),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                          onPressed: () {
+                            RouteGenerator.pop(context);
+                            if(auctionGalleryController.neverBid.value){
+                              logger.i(auctionGalleryController.bidAmount);
+                              showDialog(context: context, builder: (context)=>AlertDialog(
+                                title: Text('Opps'),
+                                content: const Text('Update feature is not implemented'),
+                                actions: [
+                                  TextButton(onPressed: (){
+                                    RouteGenerator.pop(context);
+                                  }, child: Text('Ok'))
+                                ],
+                              ));
+                            }else{
+                              auctionGalleryController.addNewBid(context);
+                            }
+                          },
+                          child: const Text('Submit')),
+                    ],
+                  ),
+                );
+              },
+              child: Obx(() => auctionGalleryController.neverBid.value
+                  ? const Icon(Icons.edit)
+                  : const Icon(Icons.add)),
+            )
+          : Container(),
     );
   }
 }

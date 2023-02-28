@@ -32,6 +32,7 @@ class CommonMethod {
       child: SizedBox(
         height: 100,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SpinKitPianoWave(color: ColorResources.deepBlue, itemCount: 5,),
             16.pw,

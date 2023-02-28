@@ -24,7 +24,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
+      duration: const Duration(seconds: 2),
     );
     _animation =
         Tween<Offset>(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
@@ -47,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.deepPurple.shade900,
       body: Center(
         child: Hero(
           tag: 'imageHero',

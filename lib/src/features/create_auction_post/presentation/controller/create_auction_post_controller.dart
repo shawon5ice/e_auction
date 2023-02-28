@@ -8,11 +8,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 
-import '../../../../../image_picker_button.dart';
 import '../widgets/auction_post_loading_dialog.dart';
+import '../widgets/permission_warning_widget.dart';
 
 Logger logger = Logger();
 
@@ -38,13 +39,14 @@ class CreateAuctionPostController extends GetxController {
         initialTime: TimeOfDay.now(),
       );
       if (time != null) {
-        auctionEndDateTime.value = DateTime(
+        DateTime date = DateTime(
           picked.year,
           picked.month,
           picked.day,
           time.hour,
           time.minute,
         );
+        auctionEndDateTime.value = date;
       }
     }
   }

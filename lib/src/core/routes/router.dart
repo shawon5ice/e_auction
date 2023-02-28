@@ -69,7 +69,8 @@ class RouteGenerator {
           return MaterialPageRoute(
             builder: (context) {
               return AuctionGalleryItemDetailsScreen(
-                  auctionGalleryModel: arguments[0] as AuctionGalleryModel
+                  auctionGalleryModel: arguments[0] as AuctionGalleryModel,
+                  docId: arguments[1] as String
               );
 
             }

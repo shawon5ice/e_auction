@@ -15,16 +15,16 @@ class AuctionGalleryModel{
 
   Map<String, dynamic> toJsonMap(AuctionGalleryModel model) {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['winner'] = model.winner;
-    data['title'] = model.title;
-    data['author_uid'] = model.authorUID;
-    data['description'] = model.description;
-    data['product_img_url'] = model.productImgUrl;
-    data['author_full_name'] = model.authorFullName;
-    data['deadline'] = model.deadline;
-    data['created_on'] = model.createdOn;
-    data['min_bid_amount'] = model.minBidAmount;
-    data['bidder'] = model.bidder;
+    data['winner'] = winner;
+    data['title'] = title;
+    data['author_uid'] = authorUID;
+    data['description'] = description;
+    data['product_img_url'] = productImgUrl;
+    data['author_full_name'] = authorFullName;
+    data['deadline'] = deadline;
+    data['created_on'] = createdOn;
+    data['min_bid_amount'] = minBidAmount;
+    data['bidder'] = bidder.toList();
     return data;
   }
 

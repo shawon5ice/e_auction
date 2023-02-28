@@ -29,7 +29,7 @@ class ProductModel{
   }
 
   ProductModel.fromJson(Map<String,dynamic>json):
-      this(
+        this(
         winner: json['winner'],
         title: json['title'],
         authorUID: json['author_uid'],
@@ -46,7 +46,7 @@ class ProductModel{
 class Bidder {
   late final String bidderFullName;
   late final String bidderUID;
-  late final double bidAmount;
+  late final int bidAmount;
 
   Bidder({required this.bidderFullName, required this.bidderUID, required this.bidAmount});
 
@@ -59,5 +59,12 @@ class Bidder {
     data['bid_amount'] = bidAmount;
     return data;
   }
+
+  Bidder.fromJson(Map<String,dynamic>json):
+        this(
+        bidderFullName: json['bidder_full_name'],
+        bidderUID: json['bidder_uid'],
+        bidAmount: json['bid_amount'],
+      );
 }
 

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import 'src/core/routes/router.dart';
 import 'src/core/utils/colorResources.dart';
-import 'src/features/splash_screen/presentation/splash_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();

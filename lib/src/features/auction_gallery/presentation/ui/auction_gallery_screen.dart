@@ -8,6 +8,7 @@ import 'package:e_auction/src/features/auction_gallery/data/models/auction_model
 import 'package:e_auction/src/features/auction_gallery/presentation/widgets/count_down_timer_widget.dart';
 import 'package:e_auction/src/features/create_auction_post/presentation/controller/create_auction_post_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutterflow_paginate_firestore/paginate_firestore.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -33,7 +34,7 @@ class AuctionGalleryScreen extends StatelessWidget {
           return GestureDetector(
               onTap: (){
                 RouteGenerator.pushNamed(context, Routes.auctionGalleryItemDetails,arguments: [
-                  auctionGalleryModel
+                  auctionGalleryModel,snapshot[index].id
                 ]);
               },
               child: GalleryItem(auctionGalleryModel: auctionGalleryModel));
@@ -84,7 +85,7 @@ class GalleryItem extends StatelessWidget {
                 children: [
                   CachedNetworkImage(
                       imageUrl: auctionGalleryModel.productImgUrl,fit: BoxFit.cover,height: 200, width: double.infinity,
-                      placeholder:  (context, url) => const CircularProgressIndicator(),
+                      placeholder:  (context, url) => SpinKitDancingSquare(color: Colors.deepPurple.shade900),
                       errorWidget: (context, url, error) => const Icon(Icons.broken_image_outlined,size: 200,)
                   ),
                   Positioned(

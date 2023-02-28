@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../../../image_picker_button.dart';
 import '../../../../core/utils/e_auction_decoration.dart';
+import '../../../../core/utils/image_picker_button.dart';
 import '../controller/create_auction_post_controller.dart';
 
 class CreateAuctionScreen extends StatefulWidget {
@@ -104,17 +104,12 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                                         hint: 'Auction deadline',
                                         label: 'Deadline'),
                                 onTap: () {
-                                  _createAuctionPostController
-                                      .isDatePicked.value = true;
-                                  _createAuctionPostController
-                                      .selectDate(context);
-                                  dateController.text = DateFormat.yMd()
-                                      .add_jm()
-                                      .format(_createAuctionPostController
-                                          .auctionEndDateTime.value);
+                                  _createAuctionPostController.isDatePicked.value = true;
+                                  _createAuctionPostController.selectDate(context);
+                                  dateController.text = DateFormat.yMd().add_jm().format(_createAuctionPostController.auctionEndDateTime.value);
                                 },
                                 readOnly: true,
-                                controller: TextEditingController(text: _createAuctionPostController.auctionEndDateTime.value.toString()),
+                                controller: TextEditingController(text: DateFormat.yMMMd().add_jm().format(_createAuctionPostController.auctionEndDateTime.value).toString()),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter a deadline';
