@@ -4,15 +4,15 @@ Tried to keep minimal design in whole app
 
 # Screenshots
 <div style="display:flex;">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/splash_screen.png" alt="alt text" width="200" height="400">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/sign_in.png" alt="alt text" width="200" height="400">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/updated_gallery.png" alt="alt text" width="200" height="400">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/auction_post.png" alt="alt text" width="200" height="400">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/loading.png" alt="alt text" width="200" height="400">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/before_adding_bid.png" alt="alt text" width="200" height="400">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/other_user_post.png" alt="alt text" width="200" height="400">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/1677607498438.png" alt="alt text" width="200" height="400">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/own_post.png" alt="alt text" width="200" height="400">
-<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/profile.png" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/splash_screen.JPEG" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/sign_in.JPEG" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/updated_gallery.JPEG" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/auction_post.JPEG" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/loading.JPEG" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/before_adding_bid.JPEG" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/other_user_post.JPEG" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/1677607498438.JPEG" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/own_post.JPEG" alt="alt text" width="200" height="400">
+<img src="https://github.com/shawon5ice/e_auction/blob/master/screenshot/profile.JPEG" alt="alt text" width="200" height="400">
 
 </div>
