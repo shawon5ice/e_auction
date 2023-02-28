@@ -31,7 +31,7 @@ class CreateAuctionPostController extends GetxController {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 7)),
     );
     if (picked != null) {
       final TimeOfDay? time = await showTimePicker(

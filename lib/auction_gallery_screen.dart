@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_auction/src/core/extensions/extensions.dart';
+import 'package:e_auction/src/features/auction_gallery/presentation/widgets/count_down_timer_widget.dart';
 import 'package:e_auction/src/features/create_auction_post/presentation/controller/create_auction_post_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterflow_paginate_firestore/paginate_firestore.dart';
@@ -36,6 +37,10 @@ class GalleryItem extends StatelessWidget {
   final ProductModel product;
   @override
   Widget build(BuildContext context) {
+    int remainingTime = product.deadline.toDate().difference(DateTime.now()).inSeconds;
+    if(remainingTime<0) {
+      remainingTime = 0;
+    }
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -73,12 +78,25 @@ class GalleryItem extends StatelessWidget {
                     bottom: 5,
                     right: 5,
                     child: Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: Colors.deepPurple
                       ),
-                      child: Text('Bid starts at: ${product.minBidAmount}',style: TextStyle(color: Colors.white),),
+                      child: Text('Bid starts at: ${product.minBidAmount}',style: const TextStyle(color: Colors.white),),
+                    ),
+                  ),
+                  Positioned(
+                    top: 5,
+                    right: 5,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.deepPurple
+                      ),
+                      child: CountDownTimer(secondsRemaining:remainingTime,whenTimeExpires: (){
+                      },),
                     ),
                   )
                 ],
