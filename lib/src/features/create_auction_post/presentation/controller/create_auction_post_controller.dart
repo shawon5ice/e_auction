@@ -4,15 +4,15 @@ import 'package:e_auction/src/features/create_auction_post/data/models/auction_m
 import 'package:e_auction/src/features/create_auction_post/domain/repository/create_auction_repository.dart';
 import 'package:e_auction/src/features/create_auction_post/domain/usecase/upload_auction_product.dart';
 import 'package:e_auction/src/features/create_auction_post/domain/usecase/upload_product_image_usecase.dart';
-import 'package:e_auction/src/features/create_auction_post/presentation/ui/widgets/auction_post_success_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../ui/widgets/permission_warning_widget.dart';
 import 'package:logger/logger.dart';
+
+import '../../../../../image_picker_button.dart';
+import '../widgets/auction_post_loading_dialog.dart';
 
 Logger logger = Logger();
 
@@ -25,7 +25,6 @@ class CreateAuctionPostController extends GetxController {
   var imageFilePath = "".obs;
   var isDatePicked = false.obs;
 
-
   Future<void> selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -35,20 +34,31 @@ class CreateAuctionPostController extends GetxController {
     );
     if (picked != null) {
       final TimeOfDay? time = await showTimePicker(
-        context: context, initialTime: TimeOfDay.now(),);
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
       if (time != null) {
-        auctionEndDateTime.value = DateTime(picked.year, picked.month, picked.day, time.hour, time.minute,);
+        auctionEndDateTime.value = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          time.hour,
+          time.minute,
+        );
       }
     }
   }
 
-  void postNewAuction() async {
+  void postNewAuction(BuildContext context) async {
     loading.value = true;
+    CommonMethod.loaderScreen(context);
     String uploadUrl = "";
     if (imageFilePath.value.isNotEmpty) {
-      UploadProductImageUseCase uploadProductImageUseCase = UploadProductImageUseCase(locator<CreateAuctionRepository>());
-      uploadUrl = await uploadProductImageUseCase(filePath: imageFilePath.value);
-      if(uploadUrl.isEmpty){
+      UploadProductImageUseCase uploadProductImageUseCase =
+          UploadProductImageUseCase(locator<CreateAuctionRepository>());
+      uploadUrl =
+          await uploadProductImageUseCase(filePath: imageFilePath.value);
+      if (uploadUrl.isEmpty) {
         const GetSnackBar(
           title: 'Failure',
           message: 'Failed to upload Image',
@@ -71,18 +81,19 @@ class CreateAuctionPostController extends GetxController {
     UploadAuctionProductUseCase uploadAuctionProductUseCase = UploadAuctionProductUseCase(locator<CreateAuctionRepository>());
     var response = await uploadAuctionProductUseCase(product: product);
 
-    if(response == true){
+    if (response == true) {
       loading.value = false;
       resetData();
-      const SuccessDialog();
+      Navigator.pop(context);
+      // const SuccessDialog();
     }
   }
 
   void getImage(ImageSource source) async {
     final picker = ImagePicker();
     PermissionStatus cameraPermissionStatus = await Permission.camera.request();
-    PermissionStatus galleryPermissionStatus = await Permission.storage
-        .request();
+    PermissionStatus galleryPermissionStatus =
+        await Permission.storage.request();
 
     if (cameraPermissionStatus.isGranted || galleryPermissionStatus.isGranted) {
       final pickedFile = await picker.pickImage(source: source);
@@ -95,14 +106,12 @@ class CreateAuctionPostController extends GetxController {
   }
 
   void resetData() {
-    loading = false.obs;
-    title = "".obs;
-    description = "".obs;
-    bidPrice = 0.0.obs;
-    auctionEndDateTime = DateTime
-        .now()
-        .obs;
-    imageFilePath = "".obs;
-    isDatePicked = false.obs;
+    loading.value = false;
+    title.value = "";
+    description.value = "";
+    bidPrice.value = 0.0;
+    auctionEndDateTime.value = DateTime.now();
+    imageFilePath.value = "";
+    isDatePicked.value = false;
   }
 }

@@ -1,4 +1,4 @@
-import 'package:e_auction/auction_gallery_screen.dart';
+import 'package:e_auction/src/features/auction_gallery/presentation/ui/auction_gallery_screen.dart';
 import 'package:e_auction/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

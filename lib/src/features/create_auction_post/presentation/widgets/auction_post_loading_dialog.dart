@@ -24,24 +24,21 @@ class CreateAuctionLoadingDialog extends StatelessWidget {
 }
 
 class CommonMethod {
-  static Widget loaderScreen() {
-    return AbsorbPointer(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Card(
-          elevation: 10,
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SpinKitDancingSquare(color: ColorResources.deepBlue,),
-                16.pw,
-                const Text('Please Wait...')
-              ],
-            ),
-          ),
+  static loaderScreen(BuildContext context) {
+    showDialog(
+      barrierDismissible: false,
+        context: context, builder: (context)=> Dialog(
+      elevation: 5,
+      child: SizedBox(
+        height: 100,
+        child: Row(
+          children: [
+            const SpinKitPianoWave(color: ColorResources.deepBlue, itemCount: 5,),
+            16.pw,
+            const Text('Please Wait...')
+          ],
         ),
       ),
-    );
+    ));
   }
 }

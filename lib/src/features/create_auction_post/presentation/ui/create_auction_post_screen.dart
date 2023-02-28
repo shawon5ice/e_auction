@@ -1,12 +1,9 @@
 import 'package:e_auction/src/core/extensions/extensions.dart';
-import 'package:e_auction/src/features/create_auction_post/presentation/ui/widgets/auction_post_loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../../../image_picker_button.dart';
-import '../../../../core/utils/colorResources.dart';
 import '../../../../core/utils/e_auction_decoration.dart';
 import '../controller/create_auction_post_controller.dart';
 
@@ -39,21 +36,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Obx(
-          () => Stack(
-            children: [
-              mainBody(),
-              if (_createAuctionPostController.loading.value)
-                Container(
-                  color: Colors.black.withOpacity(0.5),
-                  child:const Card(
-                    elevation: 5,
-                    child: SpinKitDancingSquare(color: ColorResources.deepBlue,),
-                  ),
-                ),
-            ],
-          ),
-        ),
+        child: Obx(() => mainBody()),
     );
   }
 
@@ -106,6 +89,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                                   }
                                   return null;
                                 },
+
                                 onChanged: (value) {
                                   _createAuctionPostController.bidPrice.value =
                                       double.parse(value);
@@ -130,7 +114,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                                           .auctionEndDateTime.value);
                                 },
                                 readOnly: true,
-                                controller: dateController,
+                                controller: TextEditingController(text: _createAuctionPostController.auctionEndDateTime.value.toString()),
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter a deadline';
@@ -180,7 +164,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                 style: TextButton.styleFrom(),
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    _createAuctionPostController.postNewAuction();
+                    _createAuctionPostController.postNewAuction(context);
                   }
                 },
                 child: const SizedBox(

@@ -1,18 +1,23 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_auction/src/core/extensions/extensions.dart';
+import 'package:e_auction/src/core/routes/route_name.dart';
+import 'package:e_auction/src/core/routes/router.dart';
+import 'package:e_auction/src/core/utils/colorResources.dart';
+import 'package:e_auction/src/features/auction_gallery/data/models/auction_model.dart';
 import 'package:e_auction/src/features/auction_gallery/presentation/widgets/count_down_timer_widget.dart';
 import 'package:e_auction/src/features/create_auction_post/presentation/controller/create_auction_post_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterflow_paginate_firestore/paginate_firestore.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import 'src/features/create_auction_post/data/models/auction_model.dart';
-import 'package:logger/logger.dart';
+import '../controller/auction_gallery_controller.dart';
+
 
 class AuctionGalleryScreen extends StatelessWidget {
   AuctionGalleryScreen({Key? key}) : super(key: key);
-
+  final AuctionGalleryController auctionGalleryController = Get.put(AuctionGalleryController());
   @override
   Widget build(BuildContext context) {
     return PaginateFirestore(
@@ -23,8 +28,15 @@ class AuctionGalleryScreen extends StatelessWidget {
         bottomLoader: const Center(child: CircularProgressIndicator.adaptive(),),
         itemBuilder: (context, snapshot, index){
           final Map<String, dynamic> json = snapshot[index].data() as Map<String,dynamic>;
-          final product = ProductModel.fromJson(json);
-          return GalleryItem(product: product);
+          logger.e(json);
+          final auctionGalleryModel = AuctionGalleryModel.fromJson(json);
+          return GestureDetector(
+              onTap: (){
+                RouteGenerator.pushNamed(context, Routes.auctionGalleryItemDetails,arguments: [
+                  auctionGalleryModel
+                ]);
+              },
+              child: GalleryItem(auctionGalleryModel: auctionGalleryModel));
         },
         query: FirebaseFirestore.instance.collection('auction_gallery').orderBy('created_on',descending: true),
         itemBuilderType: PaginateBuilderType.listView);
@@ -33,11 +45,12 @@ class AuctionGalleryScreen extends StatelessWidget {
 
 
 class GalleryItem extends StatelessWidget {
-  const GalleryItem({Key? key,required this.product}) : super(key: key);
-  final ProductModel product;
+  const GalleryItem({Key? key,required this.auctionGalleryModel}) : super(key: key);
+  final AuctionGalleryModel auctionGalleryModel;
+
   @override
   Widget build(BuildContext context) {
-    int remainingTime = product.deadline.toDate().difference(DateTime.now()).inSeconds;
+    int remainingTime = auctionGalleryModel.deadline.toDate().difference(DateTime.now()).inSeconds;
     if(remainingTime<0) {
       remainingTime = 0;
     }
@@ -54,15 +67,15 @@ class GalleryItem extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
-                    CircleAvatar(child: Text(product.authorFullName[0]),),
+                    CircleAvatar(child: Text(auctionGalleryModel.authorFullName[0]),),
                     20.pw,
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(product.authorFullName,style: const TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
-                        Text(DateFormat.yMMMd().add_jm().format((product.createdOn.toDate())),),
+                        Text(auctionGalleryModel.authorFullName,style: const TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
+                        Text(DateFormat.yMMMd().add_jm().format((auctionGalleryModel.createdOn.toDate()))),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -70,20 +83,20 @@ class GalleryItem extends StatelessWidget {
               Stack(
                 children: [
                   CachedNetworkImage(
-                      imageUrl: product.productImgUrl,fit: BoxFit.cover,height: 200, width: double.infinity,
+                      imageUrl: auctionGalleryModel.productImgUrl,fit: BoxFit.cover,height: 200, width: double.infinity,
                       placeholder:  (context, url) => const CircularProgressIndicator(),
                       errorWidget: (context, url, error) => const Icon(Icons.broken_image_outlined,size: 200,)
                   ),
                   Positioned(
                     bottom: 5,
-                    right: 5,
+                    left: 5,
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
-                        color: Colors.deepPurple
+                        color: Colors.black54
                       ),
-                      child: Text('Bid starts at: ${product.minBidAmount}',style: const TextStyle(color: Colors.white),),
+                      child: Text('Bid starts at: ${auctionGalleryModel.minBidAmount}',style: const TextStyle(color: Colors.white),),
                     ),
                   ),
                   Positioned(
@@ -93,10 +106,9 @@ class GalleryItem extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: Colors.deepPurple
+                          color: Colors.red
                       ),
-                      child: CountDownTimer(secondsRemaining:remainingTime,whenTimeExpires: (){
-                      },),
+                      child: CountDownTimer(secondsRemaining:remainingTime,whenTimeExpires: (){},color: Colors.white),
                     ),
                   )
                 ],
@@ -105,11 +117,12 @@ class GalleryItem extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                Text(product.title),
+                Text(auctionGalleryModel.title, style: const TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
                 Text(
-                      product.description,
+                      auctionGalleryModel.description,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 16,fontWeight: FontWeight.normal,color: Colors.black54),
                     )
                   ],
                 ),
