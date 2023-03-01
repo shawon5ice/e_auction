@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:e_auction/src/features/auction_gallery/presentation/controller/auction_gallery_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CountDownTimer extends StatefulWidget {
   final int secondsRemaining;
@@ -16,6 +18,8 @@ class _CountDownTimerState extends State<CountDownTimer> {
   late Timer _timer;
   Duration _remainingTime = const Duration();
 
+  final AuctionGalleryController auctionGalleryController = Get.find<AuctionGalleryController>();
+
   @override
   void initState() {
     super.initState();
@@ -26,6 +30,7 @@ class _CountDownTimerState extends State<CountDownTimer> {
           _timer.cancel();
         } else {
           _remainingTime -= const Duration(seconds: 1);
+          auctionGalleryController.remainingTime.value = _remainingTime.inSeconds;
         }
       });
     });
@@ -34,8 +39,9 @@ class _CountDownTimerState extends State<CountDownTimer> {
   @override
   Widget build(BuildContext context) {
     String formattedTime = "";
-    if(_remainingTime.inSeconds==0){
+    if(_remainingTime.inSeconds<=0){
       formattedTime = "Expired!";
+      auctionGalleryController.remainingTime.value = 0;
     }else{
       int days = _remainingTime.inDays;
       formattedTime ="Remaining: "
@@ -44,7 +50,7 @@ class _CountDownTimerState extends State<CountDownTimer> {
           "${_remainingTime.inMinutes.remainder(60).toString().padLeft(2, '0')}:"
           "${_remainingTime.inSeconds.remainder(60).toString().padLeft(2, '0')}";
     }
-    return Text(formattedTime,style: TextStyle(fontWeight: FontWeight.bold,color: widget.color));
+    return Text(formattedTime, style: TextStyle(fontWeight: FontWeight.bold,color: widget.color));
   }
 
   @override

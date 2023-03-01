@@ -3,10 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_auction/src/core/extensions/extensions.dart';
 import 'package:e_auction/src/core/routes/route_name.dart';
 import 'package:e_auction/src/core/routes/router.dart';
-import 'package:e_auction/src/core/utils/colorResources.dart';
 import 'package:e_auction/src/features/auction_gallery/data/models/auction_model.dart';
 import 'package:e_auction/src/features/auction_gallery/presentation/widgets/count_down_timer_widget.dart';
-import 'package:e_auction/src/features/create_auction_post/presentation/controller/create_auction_post_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutterflow_paginate_firestore/paginate_firestore.dart';
@@ -30,11 +28,11 @@ class AuctionGalleryScreen extends StatelessWidget {
         itemBuilder: (context, snapshot, index){
           // final Map<String, dynamic> json = snapshot[index].data() as Map<String,dynamic>;
           // logger.e(json);
-          final auctionGalleryModel = AuctionGalleryModel.fromSnapShot(snapshot[index]);
+          final auctionGalleryModel = AuctionGalleryModel.fromJson(snapshot[index]);
           return GestureDetector(
               onTap: (){
                 RouteGenerator.pushNamed(context, Routes.auctionGalleryItemDetails,arguments: [
-                  snapshot[index].id, auctionGalleryModel.title, auctionGalleryModel.authorUID
+                  snapshot[index].id, auctionGalleryModel.title, auctionGalleryModel.authorUid
                 ]);
               },
               child: GalleryItem(auctionGalleryModel: auctionGalleryModel));
@@ -84,32 +82,33 @@ class GalleryItem extends StatelessWidget {
               Stack(
                 children: [
                   CachedNetworkImage(
-                      imageUrl: auctionGalleryModel.productImgUrl,fit: BoxFit.cover,height: 200, width: double.infinity,
+                      imageUrl: auctionGalleryModel.productImgUrl,fit: BoxFit.cover,height: 200, width: MediaQuery.of(context).size.width,
                       placeholder:  (context, url) => SpinKitDancingSquare(color: Colors.deepPurple.shade900),
                       errorWidget: (context, url, error) => const Icon(Icons.broken_image_outlined,size: 200,)
                   ),
                   Positioned(
-                    bottom: 5,
                     left: 5,
+                    bottom: 5,
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.black54
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.black54
                       ),
                       child: Text('Bid starts at: ${auctionGalleryModel.minBidAmount}',style: const TextStyle(color: Colors.white),),
                     ),
                   ),
                   Positioned(
-                    top: 5,
                     right: 5,
+                    top: 5,
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           color: Colors.red
                       ),
-                      child: CountDownTimer(secondsRemaining:remainingTime,whenTimeExpires: (){},color: Colors.white),
+                      child:  remainingTime <= 0
+                          ? const Text('Expired!',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),):CountDownTimer(secondsRemaining:remainingTime,whenTimeExpires: (){},color: Colors.white),
                     ),
                   )
                 ],

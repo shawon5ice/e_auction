@@ -12,7 +12,7 @@ class CreateAuctionService {
   Future<bool> createNewAuctionPost({required ProductModel product}) async {
     final productRef = FirebaseFirestore.instance.collection('auction_gallery');
     try {
-      productRef.add(product.toJsonMap()).whenComplete(() => true);
+      productRef.add(product.toJson()).whenComplete(() => true);
     } catch (e) {
       return false;
     }

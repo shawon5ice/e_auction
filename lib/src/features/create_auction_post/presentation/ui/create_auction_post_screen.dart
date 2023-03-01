@@ -109,7 +109,7 @@ class _CreateAuctionScreenState extends State<CreateAuctionScreen> {
                                   dateController.text = DateFormat.yMd().add_jm().format(_createAuctionPostController.auctionEndDateTime.value);
                                 },
                                 readOnly: true,
-                                controller: TextEditingController(text: DateFormat.yMMMd().add_jm().format(_createAuctionPostController.auctionEndDateTime.value).toString()),
+                                controller: _createAuctionPostController.isDatePicked.value?TextEditingController(text: DateFormat.yMMMd().add_jm().format(_createAuctionPostController.auctionEndDateTime.value).toString()):null,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter a deadline';

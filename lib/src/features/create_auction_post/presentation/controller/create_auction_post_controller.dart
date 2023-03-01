@@ -71,7 +71,7 @@ class CreateAuctionPostController extends GetxController {
     ProductModel product = ProductModel(
         title: title.value.trim(),
         winner: '',
-        authorUID: FirebaseAuth.instance.currentUser!.uid,
+        authorUid: FirebaseAuth.instance.currentUser!.uid,
         description: description.value.trim(),
         authorFullName: FirebaseAuth.instance.currentUser!.displayName!,
         bidder: <Bidder>[],

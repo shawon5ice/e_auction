@@ -1,23 +1,26 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_auction/src/core/extensions/extensions.dart';
-import 'package:e_auction/src/core/routes/router.dart';
-import 'package:e_auction/src/core/utils/colorResources.dart';
-import 'package:e_auction/src/core/utils/e_auction_decoration.dart';
 import 'package:e_auction/src/features/auction_gallery/presentation/controller/auction_gallery_controller.dart';
-import 'package:e_auction/src/features/create_auction_post/presentation/controller/create_auction_post_controller.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/routes/router.dart';
+import '../../../../core/utils/colorResources.dart';
+import '../../../../core/utils/e_auction_decoration.dart';
 import '../../data/models/auction_model.dart';
 import '../widgets/count_down_timer_widget.dart';
 
 class AuctionGalleryItemDetailsScreen extends StatelessWidget {
-  final String docId, title,authorUID;
+  final String docId, title, authorUID;
 
-  AuctionGalleryItemDetailsScreen({Key? key, required this.docId,required this.title, required this.authorUID})
+  AuctionGalleryItemDetailsScreen(
+      {Key? key,
+      required this.docId,
+      required this.title,
+      required this.authorUID})
       : super(key: key);
 
   final AuctionGalleryController auctionGalleryController =
@@ -48,13 +51,10 @@ class AuctionGalleryItemDetailsScreen extends StatelessWidget {
                       return const Text('Document does not exist');
                     }
                     // Access data in snapshot
-                    AuctionGalleryModel  auctionGalleryModel = AuctionGalleryModel.fromSnapShot(snapshot.data!);
-                    int remainingTime = auctionGalleryModel.deadline
-                        .toDate()
-                        .difference(DateTime.now())
-                        .inSeconds;
+                    AuctionGalleryModel auctionGalleryModel = AuctionGalleryModel.fromJson(snapshot.data!);
+                    int remainingTime = auctionGalleryModel.deadline.toDate().difference(DateTime.now()).inSeconds;
                     auctionGalleryController.docId = docId;
-                    // auctionGalleryController.bidStatus(auctionGalleryModel.bidder);
+                    auctionGalleryController.bidStatus(auctionGalleryModel.bidder);
                     if (remainingTime < 0) {
                       remainingTime = 0;
                     }
@@ -66,7 +66,7 @@ class AuctionGalleryItemDetailsScreen extends StatelessWidget {
                               imageUrl: auctionGalleryModel.productImgUrl,
                               fit: BoxFit.cover,
                               height: 250,
-                              width: double.infinity,
+                              width: MediaQuery.of(context).size.width,
                               placeholder: (context, url) =>
                                   SpinKitDancingSquare(
                                       color: Colors.deepPurple.shade900),
@@ -84,18 +84,19 @@ class AuctionGalleryItemDetailsScreen extends StatelessWidget {
                                 child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           'Bid starts at: ${auctionGalleryModel.minBidAmount} Tk',
                                           style: const TextStyle(
                                               color: Colors.white),
                                         ),
-                                        const Spacer(),
-                                        CountDownTimer(
-                                          secondsRemaining: remainingTime,
-                                          whenTimeExpires: () {},
-                                          color: Colors.red,
-                                        )
+                                        remainingTime <= 0
+                                            ? const Text('Expired!',style: TextStyle(color: Colors.red),)
+                                            : CountDownTimer(
+                                                secondsRemaining: remainingTime,
+                                                whenTimeExpires:(){},
+                                                color: Colors.red)
                                       ],
                                     )),
                               ),
@@ -108,23 +109,82 @@ class AuctionGalleryItemDetailsScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text(
-                                'Posted by: ${auctionGalleryModel.authorFullName}',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                              Text(
-                                  'Posted on: ${DateFormat.yMMMd().add_jm().format((auctionGalleryModel.createdOn.toDate()))}'),
-                              8.ph,
-                              Text(
-                                auctionGalleryModel.description,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                ),
-                                textAlign: TextAlign.left,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Posted by: ${auctionGalleryModel.authorFullName}',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                      Text(
+                                          'Posted on: ${DateFormat.yMMMd().add_jm().format((auctionGalleryModel.createdOn.toDate()))}'),
+                                      8.ph,
+                                      Text(
+                                        auctionGalleryModel.description,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                        ),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                  remainingTime>0?FloatingActionButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title: const Text('Bid to win the auction'),
+                                            content: TextField(
+                                              onChanged: (val) {
+                                                auctionGalleryController.bidAmount =
+                                                    double.parse(val);
+                                              },
+                                              inputFormatters: [
+                                                FilteringTextInputFormatter.digitsOnly
+                                              ],
+                                              keyboardType: TextInputType.number,
+                                              decoration: EAuctionDecorations
+                                                  .eAuctionInputDecoration(
+                                                  hint: 'Enter bid amount',
+                                                  label: 'Bid amount'),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  RouteGenerator.pop(context);
+                                                },
+                                                style: TextButton.styleFrom(
+                                                    foregroundColor: ColorResources.ash),
+                                                child: const Text('Cancel'),
+                                              ),
+                                              TextButton(
+                                                  onPressed: () {
+                                                    RouteGenerator.pop(context);
+                                                    if (auctionGalleryController.neverBid.value) {
+                                                      auctionGalleryController.updateBidAmount(context);
+                                                    } else {
+                                                      auctionGalleryController.addNewBid(context);
+                                                    }
+                                                  },
+                                                  child: const Text('Submit')),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      child:
+                                      auctionGalleryController.neverBid.value
+                                          ? const Icon(Icons.edit)
+                                          : const Icon(Icons.add)
+                                  )
+                                      : Container(),
+                                ],
                               ),
                               16.ph,
                               Padding(
@@ -192,8 +252,7 @@ class AuctionGalleryItemDetailsScreen extends StatelessWidget {
                                                       ),
                                                     ],
                                                   ),
-                                                  ...table(auctionGalleryModel
-                                                      .bidder)
+                                                  ...table(auctionGalleryModel.bidder)
                                                   // Add more rows as needed
                                                 ],
                                               )
@@ -217,63 +276,6 @@ class AuctionGalleryItemDetailsScreen extends StatelessWidget {
               }),
         ),
       ),
-      floatingActionButton: authorUID !=
-              FirebaseAuth.instance.currentUser?.uid
-          ? FloatingActionButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Bid to win the auction'),
-                    content: TextField(
-                      onChanged: (val) {
-                        auctionGalleryController.bidAmount = int.parse(val);
-                      },
-                      decoration: EAuctionDecorations.eAuctionInputDecoration(
-                          hint: 'Enter bid amount', label: 'Bid amount'),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          RouteGenerator.pop(context);
-                        },
-                        style: TextButton.styleFrom(
-                            foregroundColor: ColorResources.ash),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                          onPressed: () {
-                            RouteGenerator.pop(context);
-                            if (auctionGalleryController.neverBid.value) {
-                              logger.i(auctionGalleryController.bidAmount);
-                              showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                        title: Text('Opps'),
-                                        content: const Text(
-                                            'Update feature is not implemented'),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () {
-                                                RouteGenerator.pop(context);
-                                              },
-                                              child: const Text('Ok'))
-                                        ],
-                                      ));
-                            } else {
-                              auctionGalleryController.addNewBid(context);
-                            }
-                          },
-                          child: const Text('Submit')),
-                    ],
-                  ),
-                );
-              },
-              child: Obx(() => auctionGalleryController.neverBid.value
-                  ? const Icon(Icons.edit)
-                  : const Icon(Icons.add)),
-            )
-          : Container(),
     );
   }
 }
@@ -285,7 +287,7 @@ List<TableRow> table(List<Bidder> items) {
         TableCell(
           child: Container(
             padding: const EdgeInsets.all(8.0),
-            child: Text(rowData.bidderFullName),
+            child: Text("${rowData.bidderFullName}"),
           ),
         ),
         TableCell(

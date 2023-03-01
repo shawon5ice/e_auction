@@ -81,9 +81,7 @@ class ProfileScreen extends StatelessWidget {
                 child: CircularProgressIndicator.adaptive(),
               ),
               itemBuilder: (context, snapshot, index) {
-                final Map<String, dynamic> json =
-                    snapshot[index].data() as Map<String, dynamic>;
-                final product = ProductModel.fromJson(json);
+                final product = ProductModel.fromJson(snapshot[index]);
                 return PostedAuctionItem(product: product);
               },
               query: query,

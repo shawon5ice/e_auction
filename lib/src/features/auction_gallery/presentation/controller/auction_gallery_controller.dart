@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:e_auction/src/core/routes/router.dart';
 import 'package:e_auction/src/features/auction_gallery/domain/repository/auction_gallery_repository.dart';
 import 'package:e_auction/src/features/auction_gallery/domain/usecase/add_bid_auction_gallery_usecase.dart';
 import 'package:e_auction/src/features/auction_gallery/domain/usecase/update_bid_auction_gallery_usecase.dart';
@@ -16,15 +17,15 @@ import '../../data/models/auction_model.dart';
 class AuctionGalleryController extends GetxController {
   var updateIndicator = false.obs;
   var neverBid = false.obs;
-  var bidAmount = 0;
+  var bidAmount = 0.0;
   int index = 0;
   String docId = "";
+  var remainingTime = 0.obs;
 
   void bidStatus(List<Bidder> bidder) {
     for (var value in bidder) {
       index++;
-      if (value.bidderUID == FirebaseAuth.instance.currentUser?.uid) {
-        logger.e(neverBid.value);
+      if (value.bidderUid == FirebaseAuth.instance.currentUser?.uid) {
         neverBid.value = true;
         break;
       }
@@ -32,39 +33,23 @@ class AuctionGalleryController extends GetxController {
   }
 
   void addNewBid(BuildContext context) async {
-    updateIndicator.value = true;
-    CommonMethod.loaderScreen(context);
 
     Bidder bidderInfo = Bidder(
         bidderFullName: FirebaseAuth.instance.currentUser!.displayName??"Unknown",
-        bidderUID: FirebaseAuth.instance.currentUser!.uid,
+        bidderUid: FirebaseAuth.instance.currentUser!.uid,
         bidAmount: bidAmount);
 
     AddBidAuctionGalleryUseCase addBidAuctionGalleryUseCase = AddBidAuctionGalleryUseCase(locator<AuctionGalleryRepository>());
-
-    var response = await addBidAuctionGalleryUseCase(bidderProfile: bidderInfo,docId: docId);
-
-    if (response == true) {
-      updateIndicator.value = false;
-      Navigator.pop(context);
-      // const SuccessDialog();
-    }
+    await addBidAuctionGalleryUseCase(bidderProfile: bidderInfo,docId: docId);
   }
 
-  // void updateBidAmount(BuildContext context) async{
-  //   updateIndicator.value = true;
-  //   CommonMethod.loaderScreen(context);
-  //   Bidder bidderInfo = Bidder(
-  //       bidderFullName: FirebaseAuth.instance.currentUser!.displayName??"Unknown",
-  //       bidderUID: FirebaseAuth.instance.currentUser!.uid,
-  //       bidAmount: bidAmount);
-  //   UpdateBidAuctionGalleryUseCase updateBidAuctionGalleryUseCase = UpdateBidAuctionGalleryUseCase(locator<AuctionGalleryRepository>());
-  //   var response = await updateBidAuctionGalleryUseCase(docId: docId,index: index,updatedValue: bidderInfo);
-  //
-  //   if (response == true) {
-  //     updateIndicator.value = false;
-  //     Navigator.pop(context);
-  //     // const SuccessDialog();
-  //   }
-  // }
+  void updateBidAmount(BuildContext context) async{
+    Bidder bidderInfo = Bidder(
+        bidderFullName: FirebaseAuth.instance.currentUser!.displayName??"Unknown",
+        bidderUid: FirebaseAuth.instance.currentUser!.uid,
+        bidAmount: bidAmount);
+    UpdateBidAuctionGalleryUseCase updateBidAuctionGalleryUseCase = UpdateBidAuctionGalleryUseCase(locator<AuctionGalleryRepository>());
+    await updateBidAuctionGalleryUseCase(docId: docId,index: index,updatedValue: bidderInfo);
+
+  }
 }
