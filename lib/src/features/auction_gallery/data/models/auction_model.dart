@@ -41,6 +41,23 @@ class AuctionGalleryModel{
         bidder: json['bidder']!=null?json['bidder'].map<Bidder>((doc) => Bidder.fromJson(doc)).toList():[],
         minBidAmount: json['min_bid_amount'],
       );
+
+  factory AuctionGalleryModel.fromSnapShot(DocumentSnapshot snapshot){
+    Map<String, dynamic> json = snapshot.data() as Map<String, dynamic>;
+    return AuctionGalleryModel(
+      winner: json['winner'] as String,
+      title: json['title'] as String,
+      authorUID: json['author_uid'] as String,
+      description: json['description'] as String,
+      productImgUrl: json['product_img_url'] as String,
+      authorFullName: json['author_full_name'] as String,
+      deadline: json['deadline'] as Timestamp,
+      createdOn: json['created_on'] as Timestamp,
+      bidder: json['bidder'] != null ? json['bidder'].map<Bidder>((doc) =>
+          Bidder.fromJson(doc)).toList() : [],
+      minBidAmount: json['min_bid_amount'] as double,
+    );
+  }
 }
 
 class Bidder {

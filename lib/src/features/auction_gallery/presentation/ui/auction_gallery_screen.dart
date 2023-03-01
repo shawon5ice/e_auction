@@ -28,13 +28,13 @@ class AuctionGalleryScreen extends StatelessWidget {
         onError: (e) => const Center(child: Text('Something went wrong'),),
         bottomLoader: const Center(child: CircularProgressIndicator.adaptive(),),
         itemBuilder: (context, snapshot, index){
-          final Map<String, dynamic> json = snapshot[index].data() as Map<String,dynamic>;
-          logger.e(json);
-          final auctionGalleryModel = AuctionGalleryModel.fromJson(json);
+          // final Map<String, dynamic> json = snapshot[index].data() as Map<String,dynamic>;
+          // logger.e(json);
+          final auctionGalleryModel = AuctionGalleryModel.fromSnapShot(snapshot[index]);
           return GestureDetector(
               onTap: (){
                 RouteGenerator.pushNamed(context, Routes.auctionGalleryItemDetails,arguments: [
-                  auctionGalleryModel,snapshot[index].id
+                  snapshot[index].id, auctionGalleryModel.title, auctionGalleryModel.authorUID
                 ]);
               },
               child: GalleryItem(auctionGalleryModel: auctionGalleryModel));
