@@ -52,7 +52,7 @@ List<TableRow> table(List<Bidder> items) {
     return TableRow(
       children: [
         CommonTableCell(text: rowData.bidderFullName, isTitle: false,isName: true,),
-        CommonTableCell(text: rowData.bidAmount.toString(), isTitle: false,isName: true,),
+        CommonTableCell(text: rowData.bidAmount.toString(), isTitle: false,isName: false,),
       ],
     );
   }).toList();

@@ -3,6 +3,7 @@ import 'package:e_auction/src/core/routes/router.dart';
 import 'package:e_auction/src/features/authentication/domain/repository/authentication_repository.dart';
 import 'package:e_auction/src/features/authentication/domain/usecase/check_sign_in_status.dart';
 import 'package:e_auction/src/features/authentication/domain/usecase/sign_out_usecase.dart';
+import 'package:e_auction/src/features/dash_board/controller/dashboard_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,11 +12,13 @@ import '../../domain/usecase/sign_in_with_google_usecase.dart';
 
 class AuthenticationController extends GetxController {
   var showLoading = false.obs;
+  var totalPost = 0.obs;
 
   void signOut(BuildContext context) async{
     SignOutUseCase signOutUseCase = SignOutUseCase(locator<AuthenticationRepository>());
     var response = await signOutUseCase();
     if(response == true){
+      Get.delete<DashBoardController>();
       RouteGenerator.pushReplacementNamed(context, Routes.authenticationScreenRouteName);
     }
 
@@ -41,7 +44,7 @@ class AuthenticationController extends GetxController {
       showLoading.value = false;
       showDialog(
         context: context,
-        builder: (context) => AlertDialog(
+        builder: (context) => const AlertDialog(
           title: Text('No internet connection'),
           content: Text('Please check your internet connection and try again.'),
         ),

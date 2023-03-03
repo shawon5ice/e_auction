@@ -13,7 +13,6 @@ import '../controller/authentication_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({Key? key}) : super(key: key);
-  var totalPosted;
 
   final _authenticationController = Get.find<AuthenticationController>();
 
@@ -25,7 +24,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     query.get().then((querySnapshot) {
-      totalPosted = querySnapshot.size;
+      _authenticationController.totalPost.value = querySnapshot.size;
     });
     return SafeArea(
         child: Column(
@@ -53,10 +52,16 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     ElevatedButton(onPressed: ()=> _authenticationController.signOut(context), child: const Text('Sign Out')),
                     10.ph,
-                    Text(
-                      'Total auction posted: $totalPosted',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
+                    StreamBuilder<DocumentSnapshot>(
+                      stream: null,
+                      builder: (context, snapshot) {
+                        return Obx(() =>  Text(
+                          'Total auction posted: ${_authenticationController.totalPost.value}',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                        );
+                      }
                     ),
                   ],
                 ),
@@ -134,7 +139,7 @@ class PostedAuctionItem extends StatelessWidget {
             Text(product.title),
             Text(
               'Deadline: ${DateFormat.yMMMd().add_jm().format((product.deadline.toDate()))}',
-              style: TextStyle(fontSize: 12, color: Colors.black54),
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
             ),
           ],
         ),
